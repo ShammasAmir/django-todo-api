@@ -5,6 +5,7 @@ from .models import Todo
 from .serializers import TodoSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
 # @api_view(['GET'])
 # def all_todos(request: Request):
@@ -24,3 +25,18 @@ def all_todos(request: Request):
             serializer.save()
             return Response(serializer.data, status.HTTP_201_CREATED)
     return Response(None, status.HTTP_400_BAD_REQUEST)
+
+
+class TodosListApiView(APIView):
+    def get(self, request: Request):
+        todos = Todo.objects.all()
+        todo_serializer = TodoSerializer(todos, many=True)
+        return Response(todo_serializer.data, status.HTTP_200_OK)
+
+    def post(self, request: Request):
+        serializer = TodoSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        else:
+            return Response(None, status.HTTP_400_BAD_REQUEST)
