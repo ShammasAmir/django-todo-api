@@ -6,6 +6,7 @@ from .serializers import TodoSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema
 
 # @api_view(['GET'])
 # def all_todos(request: Request):
@@ -28,11 +29,21 @@ def all_todos(request: Request):
 
 
 class TodosListApiView(APIView):
+    @extend_schema(
+        request=TodoSerializer,
+        responses={200: TodoSerializer},
+        description='Get the list of all todos.'
+    )
     def get(self, request: Request):
         todos = Todo.objects.all()
         todo_serializer = TodoSerializer(todos, many=True)
         return Response(todo_serializer.data, status.HTTP_200_OK)
 
+    @extend_schema(
+        request=TodoSerializer,
+        responses={201: TodoSerializer},
+        description='Create a new todo.'
+    )
     def post(self, request: Request):
         serializer = TodoSerializer(data = request.data)
         if serializer.is_valid():
